@@ -298,4 +298,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## Credits
 
 - [nui.nvim](https://github.com/MunifTanjim/nui.nvim) for the beautiful UI components
-- Inspired by various IDE features for intelligent file creation # nvim-newfile.nvim
+- Inspired by various IDE features for intelligent file creation 
