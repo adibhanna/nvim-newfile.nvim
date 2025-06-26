@@ -2,6 +2,8 @@
 
 A Neovim plugin that intelligently creates new files with automatic package/namespace declarations based on directory structure and language context.
 
+Demo: https://x.com/Adib_Hanna/status/1938245952541954496
+
 ## Features
 
 - 🎯 **Smart Package Detection**: Automatically generates correct package/namespace declarations based on directory structure
