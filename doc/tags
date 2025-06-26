@@ -13,6 +13,11 @@ nvim-newfile-installation	nvim-newfile.txt	/*nvim-newfile-installation*
 nvim-newfile-introduction	nvim-newfile.txt	/*nvim-newfile-introduction*
 nvim-newfile-language-support	nvim-newfile.txt	/*nvim-newfile-language-support*
 nvim-newfile-requirements	nvim-newfile.txt	/*nvim-newfile-requirements*
+nvim-newfile-templates	nvim-newfile.txt	/*nvim-newfile-templates*
+nvim-newfile-templates-advanced	nvim-newfile.txt	/*nvim-newfile-templates-advanced*
+nvim-newfile-templates-best-practices	nvim-newfile.txt	/*nvim-newfile-templates-best-practices*
+nvim-newfile-templates-custom	nvim-newfile.txt	/*nvim-newfile-templates-custom*
+nvim-newfile-templates-examples	nvim-newfile.txt	/*nvim-newfile-templates-examples*
 nvim-newfile-troubleshooting	nvim-newfile.txt	/*nvim-newfile-troubleshooting*
 nvim-newfile-usage	nvim-newfile.txt	/*nvim-newfile-usage*
 nvim-newfile.txt	nvim-newfile.txt	/*nvim-newfile.txt*

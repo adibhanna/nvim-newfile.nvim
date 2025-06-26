@@ -14,8 +14,9 @@ CONTENTS                                                    *nvim-newfile-conten
 6. Commands               |nvim-newfile-commands|
 7. Configuration          |nvim-newfile-configuration|
 8. Language Support       |nvim-newfile-language-support|
-9. Examples               |nvim-newfile-examples|
-10. Troubleshooting       |nvim-newfile-troubleshooting|
+9. Templates              |nvim-newfile-templates|
+10. Examples              |nvim-newfile-examples|
+11. Troubleshooting       |nvim-newfile-troubleshooting|
 
 ==============================================================================
 1. INTRODUCTION                                       *nvim-newfile-introduction*
@@ -267,7 +268,361 @@ You can add support for additional languages by extending the configuration:
 <
 
 ==============================================================================
-9. EXAMPLES                                              *nvim-newfile-examples*
+9. TEMPLATES                                            *nvim-newfile-templates*
+
+The plugin supports custom templates that allow you to define specific file
+content for different languages and file types. Templates use string
+substitution to insert package/namespace declarations and other dynamic
+content.
+
+Template Configuration ~
+
+Templates are configured in the `templates` section of your setup
+configuration. Each language can have multiple template types:
+
+>
+    require("nvim-newfile").setup({
+      templates = {
+        go = {
+          main = [[package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello, World!")
+}
+]],
+          test = [[package %s
+
+import "testing"
+
+func TestExample(t *testing.T) {
+	// TODO: Add test implementation
+}
+]],
+        },
+        php = {
+          class = [[<?php
+
+namespace %s;
+
+class %s
+{
+    // TODO: Implement class
+}
+]],
+          interface = [[<?php
+
+namespace %s;
+
+interface %s
+{
+    // TODO: Define interface methods
+}
+]],
+        },
+      }
+    })
+<
+
+Template Variables ~
+
+Templates support the following substitution variables:
+
+• %s - First occurrence: Package/namespace declaration
+• %s - Second occurrence: Class/struct name (derived from filename)
+• %s - Additional occurrences: Additional context-specific substitutions
+
+Template Selection ~
+
+Templates are automatically selected based on:
+• File naming patterns (e.g., files ending with "_test.go" use test template)
+• File location (e.g., main.go files use main template)
+• Manual specification through configuration
+
+Creating Custom Templates ~
+
+*nvim-newfile-templates-custom*
+
+To create custom templates:
+
+1. Add template to language configuration:
+>
+    languages = {
+      javascript = {
+        enabled = true,
+        package_format = "// Module: %s\n",
+        file_extensions = { "js" },
+      }
+    },
+    templates = {
+      javascript = {
+        class = [[// Module: %s
+
+export class %s {
+    constructor() {
+        // TODO: Initialize class
+    }
+}
+]],
+        function = [[// Module: %s
+
+export function %s() {
+    // TODO: Implement function
+}
+]],
+        react = [[// Module: %s
+import React from 'react';
+
+export default function %s() {
+    return (
+        <div>
+            <h1>%s Component</h1>
+        </div>
+    );
+}
+]],
+      }
+    }
+<
+
+2. Use naming conventions to trigger templates:
+   • Files ending with "Component.js" might use react template
+   • Files with "class" in the name might use class template
+   • Main files might use a default template
+
+Template Examples by Language ~
+
+*nvim-newfile-templates-examples*
+
+Go Templates:
+>
+    go = {
+      main = [[package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello from %s!")
+}
+]],
+      handler = [[package %s
+
+import (
+	"net/http"
+)
+
+func %sHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO: Implement handler
+}
+]],
+      struct = [[package %s
+
+type %s struct {
+	// TODO: Add fields
+}
+
+func New%s() *%s {
+	return &%s{}
+}
+]],
+    }
+<
+
+PHP Templates:
+>
+    php = {
+      controller = [[<?php
+
+namespace %s;
+
+use Illuminate\Http\Request;
+
+class %sController
+{
+    public function index()
+    {
+        // TODO: Implement index method
+    }
+}
+]],
+      model = [[<?php
+
+namespace %s;
+
+use Illuminate\Database\Eloquent\Model;
+
+class %s extends Model
+{
+    protected $fillable = [];
+}
+]],
+      service = [[<?php
+
+namespace %s;
+
+class %sService
+{
+    public function __construct()
+    {
+        // TODO: Initialize service
+    }
+}
+]],
+    }
+<
+
+Java Templates:
+>
+    java = {
+      class = [[package %s;
+
+public class %s {
+    
+    public %s() {
+        // TODO: Constructor implementation
+    }
+}
+]],
+      interface = [[package %s;
+
+public interface %s {
+    // TODO: Define interface methods
+}
+]],
+      enum = [[package %s;
+
+public enum %s {
+    // TODO: Define enum values
+}
+]],
+      record = [[package %s;
+
+public record %s() {
+    // TODO: Define record components
+}
+]],
+    }
+<
+
+TypeScript/JavaScript Templates:
+>
+    typescript = {
+      class = [[// Module: %s
+
+export class %s {
+    constructor() {
+        // TODO: Initialize class
+    }
+}
+]],
+      interface = [[// Module: %s
+
+export interface %s {
+    // TODO: Define interface properties
+}
+]],
+      component = [[// Module: %s
+import React from 'react';
+
+interface %sProps {
+    // TODO: Define props
+}
+
+export const %s: React.FC<%sProps> = (props) => {
+    return (
+        <div>
+            {/* TODO: Implement component */}
+        </div>
+    );
+};
+]],
+      hook = [[// Module: %s
+import { useState, useEffect } from 'react';
+
+export const use%s = () => {
+    // TODO: Implement custom hook
+    
+    return {};
+};
+]],
+    }
+<
+
+Advanced Template Features ~
+
+*nvim-newfile-templates-advanced*
+
+Conditional Templates:
+You can create conditional logic in your templates using Lua:
+
+>
+    templates = {
+      go = {
+        default = function(package_name, class_name, file_path)
+          if file_path:match("_test%.go$") then
+            return string.format([[package %s
+
+import "testing"
+
+func Test%s(t *testing.T) {
+    // TODO: Add test implementation
+}
+]], package_name, class_name)
+          else
+            return string.format([[package %s
+
+// TODO: Implement %s
+]], package_name, class_name)
+          end
+        end
+      }
+    }
+<
+
+Multi-line Templates with Proper Indentation:
+>
+    templates = {
+      python = {
+        class = [["""Module: %s"""
+
+class %s:
+    """TODO: Class description."""
+    
+    def __init__(self):
+        """Initialize %s."""
+        pass
+    
+    def __str__(self):
+        """String representation of %s."""
+        return f"%s()"
+]],
+        dataclass = [["""Module: %s"""
+from dataclasses import dataclass
+
+@dataclass
+class %s:
+    """TODO: Dataclass description."""
+    pass
+]],
+      }
+    }
+<
+
+Template Best Practices ~
+
+*nvim-newfile-templates-best-practices*
+
+1. Use clear, descriptive template names
+2. Include TODO comments for implementation guidance
+3. Follow language-specific conventions and style guides
+4. Use proper indentation and formatting
+5. Include necessary imports and dependencies
+6. Consider different use cases (classes, interfaces, functions, etc.)
+7. Test templates with different package/namespace structures
+
+==============================================================================
+10. EXAMPLES                                             *nvim-newfile-examples*
 
 Auto Extension Detection ~
 
