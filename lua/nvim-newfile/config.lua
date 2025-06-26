@@ -91,6 +91,11 @@ M.defaults = {
         width = 60,
         height = 1,
     },
+
+    -- Notification settings
+    notifications = {
+        enabled = true, -- Show notification when creating files
+    },
 }
 
 -- Current configuration (starts with defaults)
@@ -129,6 +134,11 @@ end
 -- Get UI configuration
 function M.get_ui_config()
     return M.options.ui
+end
+
+-- Get notification configuration
+function M.get_notification_config()
+    return M.options.notifications
 end
 
 return M

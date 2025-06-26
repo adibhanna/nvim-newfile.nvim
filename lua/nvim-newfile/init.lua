@@ -17,7 +17,7 @@ function M.create_file(filename)
 end
 
 -- Create a file in the current directory
-function M.create_file_here()
+function M.create_file_here(filename)
     -- Get the directory of the current buffer, fallback to working directory
     local current_file = vim.fn.expand("%:p")
     local target_dir
@@ -26,7 +26,14 @@ function M.create_file_here()
     else
         target_dir = vim.fn.getcwd()
     end
-    M._show_input_dialog(target_dir)
+
+    -- If filename is provided, create the file directly
+    if filename and filename ~= "" then
+        M._create_file_with_name(filename, target_dir)
+    else
+        -- Otherwise, show the input dialog
+        M._show_input_dialog(target_dir)
+    end
 end
 
 -- Show input dialog using nui.nvim
@@ -316,7 +323,12 @@ function M._create_file_with_name(filename, target_dir)
         elseif choice == 3 then
             -- Open existing file
             vim.schedule(function()
-                vim.cmd("edit " .. vim.fn.fnameescape(full_path))
+                local escaped_path = vim.fn.fnameescape(full_path)
+                local cmd = "edit " .. escaped_path
+                local ok, err = pcall(vim.cmd, cmd)
+                if not ok then
+                    vim.notify("Error opening existing file: " .. err, vim.log.levels.ERROR)
+                end
             end)
             return
         else
@@ -346,19 +358,49 @@ function M._create_file_with_name(filename, target_dir)
 
     -- Open the file in Neovim (ensure we're in a clean state)
     vim.schedule(function()
-        vim.cmd("edit " .. vim.fn.fnameescape(full_path))
+        -- Use a safer approach to open the file
+        local escaped_path = vim.fn.fnameescape(full_path)
+        local cmd = "edit " .. escaped_path
 
-        -- Position cursor appropriately
-        if #lines > 1 then
-            -- Move to end of file for content addition
-            vim.cmd("normal! G")
-            if content:match("\n\n$") then
-                vim.cmd("normal! o")
-            end
+        -- Additional safety check for the command
+        if cmd:len() > 500 then
+            vim.notify("File path too long: " .. full_path, vim.log.levels.ERROR)
+            return
         end
+
+        local ok, err = pcall(vim.cmd, cmd)
+        if not ok then
+            vim.notify("Error opening file: " .. err, vim.log.levels.ERROR)
+            return
+        end
+
+        -- Ensure buffer is modifiable and position cursor appropriately
+        vim.defer_fn(function()
+            -- Make sure we're in the right buffer and it's modifiable
+            local current_buf = vim.api.nvim_get_current_buf()
+            if vim.api.nvim_buf_is_valid(current_buf) then
+                vim.api.nvim_buf_set_option(current_buf, 'modifiable', true)
+
+                if #lines > 1 then
+                    -- Move to end of file for content addition
+                    local line_count = vim.api.nvim_buf_line_count(current_buf)
+                    vim.api.nvim_win_set_cursor(0, { line_count, 0 })
+
+                    if content:match("\n\n$") then
+                        -- Add a new line at the end
+                        vim.api.nvim_buf_set_lines(current_buf, -1, -1, false, { "" })
+                        vim.api.nvim_win_set_cursor(0, { line_count + 1, 0 })
+                    end
+                end
+            end
+        end, 50) -- Small delay to ensure file is fully loaded
     end)
 
-    vim.notify(string.format("Created file: %s", filename), vim.log.levels.INFO)
+    -- Show notification if enabled
+    local notification_config = config.get_notification_config()
+    if notification_config.enabled then
+        vim.notify(string.format("Created file: %s", filename), vim.log.levels.INFO)
+    end
 end
 
 -- Setup function for configuration

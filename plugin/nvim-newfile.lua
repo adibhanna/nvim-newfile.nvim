@@ -20,8 +20,9 @@ end, {
     desc = "Create a new file with automatic package/namespace declaration",
 })
 
-vim.api.nvim_create_user_command("NewFileHere", function()
-    require("nvim-newfile").create_file_here()
+vim.api.nvim_create_user_command("NewFileHere", function(opts)
+    require("nvim-newfile").create_file_here(opts.args)
 end, {
+    nargs = "?",
     desc = "Create a new file in the current directory with automatic package/namespace declaration",
 })

@@ -184,6 +184,11 @@ export interface %s {
         -- You can also customize colors (optional)
         -- winhighlight = "Normal:Normal,FloatBorder:Special",
     },
+
+    -- Notification settings
+    notifications = {
+        enabled = true, -- Set to false to disable file creation notifications
+    },
 })
 
 -- Optional: Custom command for specific file types

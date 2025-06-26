@@ -184,6 +184,11 @@ require("nvim-newfile").setup({
     width = 60,
     height = 1,
   },
+  
+  -- Notification settings
+  notifications = {
+    enabled = true, -- Set to false to disable file creation notifications
+  },
 })
 ```
 
@@ -222,6 +227,20 @@ require("nvim-newfile").setup({
   },
 })
 ```
+
+### Notification Settings
+
+Control whether to show notifications when files are created:
+
+```lua
+require("nvim-newfile").setup({
+  notifications = {
+    enabled = false, -- Disable file creation notifications
+  },
+})
+```
+
+By default, the plugin shows a notification like "Created file: example.go" when a file is successfully created. You can disable this by setting `notifications.enabled = false`.
 
 ## Key Mappings
 
