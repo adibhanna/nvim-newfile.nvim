@@ -1,0 +1,358 @@
+*nvim-newfile.txt*    A Neovim plugin for intelligent file creation with auto package/namespace detection
+
+Author: Adib Hanna
+License: MIT
+Repository: https://github.com/adibhanna/nvim-newfile.nvim
+
+CONTENTS                                                    *nvim-newfile-contents*
+
+1. Introduction            |nvim-newfile-introduction|
+2. Features               |nvim-newfile-features|
+3. Requirements           |nvim-newfile-requirements|
+4. Installation           |nvim-newfile-installation|
+5. Usage                  |nvim-newfile-usage|
+6. Commands               |nvim-newfile-commands|
+7. Configuration          |nvim-newfile-configuration|
+8. Language Support       |nvim-newfile-language-support|
+9. Examples               |nvim-newfile-examples|
+10. Troubleshooting       |nvim-newfile-troubleshooting|
+
+==============================================================================
+1. INTRODUCTION                                       *nvim-newfile-introduction*
+
+nvim-newfile is a Neovim plugin that intelligently creates new files with
+automatic package/namespace declarations based on directory structure and
+language context. It provides a beautiful UI for file creation and supports
+multiple programming languages out of the box.
+
+The plugin automatically detects your project type and generates appropriate
+package/namespace declarations, saving you time and ensuring consistency
+across your codebase.
+
+==============================================================================
+2. FEATURES                                              *nvim-newfile-features*
+
+• Smart Package Detection: Automatically generates correct package/namespace
+  declarations based on directory structure
+• Multi-Language Support: Supports Go, PHP, Java, Kotlin, Scala, C#, Rust,
+  and more
+• Beautiful UI: Uses nui.nvim for an elegant file creation interface
+• Project Root Detection: Intelligently finds project root using common
+  patterns (go.mod, composer.json, .git, etc.)
+• Configurable: Highly customizable with language-specific settings and
+  templates
+• Directory Creation: Automatically creates directories if they don't exist
+• Tab Completion: Press <Tab> in the file input popup to autocomplete
+  directory paths
+• Auto Extension Detection: File extensions are automatically added based
+  on project type
+
+==============================================================================
+3. REQUIREMENTS                                       *nvim-newfile-requirements*
+
+• Neovim 0.5.0+
+• nui.nvim (https://github.com/MunifTanjim/nui.nvim)
+
+==============================================================================
+4. INSTALLATION                                       *nvim-newfile-installation*
+
+Using lazy.nvim: >
+    {
+      "adibhanna/nvim-newfile.nvim",
+      dependencies = {
+        "MunifTanjim/nui.nvim"
+      },
+      config = function()
+        require("nvim-newfile").setup({
+          -- Optional configuration
+        })
+      end,
+    }
+<
+
+Using packer.nvim: >
+    use {
+      "adibhanna/nvim-newfile.nvim",
+      requires = {
+        "MunifTanjim/nui.nvim"
+      },
+      config = function()
+        require("nvim-newfile").setup({
+          -- Optional configuration
+        })
+      end
+    }
+<
+
+Using vim-plug: >
+    Plug 'MunifTanjim/nui.nvim'
+    Plug 'adibhanna/nvim-newfile.nvim'
+<
+
+Then in your init.lua: >
+    require("nvim-newfile").setup({})
+<
+
+==============================================================================
+5. USAGE                                                    *nvim-newfile-usage*
+
+Basic usage involves using the provided commands to create new files. The
+plugin will automatically detect the project type and generate appropriate
+package/namespace declarations.
+
+Tab Completion ~
+When using the file input dialog, press <Tab> to autocomplete directory
+paths. This helps you navigate your project structure quickly.
+
+Working Directory vs Current File ~
+• |:NewFile| creates files relative to your working directory
+• |:NewFileHere| creates files relative to the current buffer's directory
+
+Auto Extension Detection ~
+The plugin automatically adds file extensions based on the detected project
+type. For example, in a Go project, typing "handler" will create "handler.go".
+
+==============================================================================
+6. COMMANDS                                              *nvim-newfile-commands*
+
+                                                                     *:NewFile*
+:NewFile [filename]
+    Create a new file with optional filename (relative to working directory).
+    If no filename is provided, opens an interactive input dialog.
+
+    Example: >
+        :NewFile utils/helper
+        :NewFile controllers/UserController
+<
+
+                                                                 *:NewFileHere*
+:NewFileHere [filename]
+    Create a new file in the same directory as the current buffer.
+    If no filename is provided, opens an interactive input dialog.
+
+    Example: >
+        :NewFileHere utils
+        :NewFileHere ../services/Auth
+<
+
+==============================================================================
+7. CONFIGURATION                                    *nvim-newfile-configuration*
+
+The plugin is configured by calling the setup function with a configuration
+table. Here's the default configuration:
+
+>
+    require("nvim-newfile").setup({
+      -- Language-specific settings
+      languages = {
+        go = {
+          enabled = true,
+          package_format = "package %s",
+          use_directory_name = true,
+          file_extensions = { "go" },
+        },
+        php = {
+          enabled = true,
+          package_format = "<?php\n\nnamespace %s;",
+          use_directory_name = false,
+          file_extensions = { "php" },
+        },
+        java = {
+          enabled = true,
+          package_format = "package %s;",
+          use_directory_name = false,
+          file_extensions = { "java" },
+        },
+        -- ... more languages
+      },
+      
+      -- Project root detection patterns
+      project_root_patterns = {
+        "go.mod", "composer.json", "pom.xml", "build.gradle",
+        "build.sbt", "package.json", ".git", "Cargo.toml", "Makefile"
+      },
+      
+      -- UI settings
+      ui = {
+        border_style = "rounded",
+        prompt_text = "📝 File name: ",
+        width = 60,
+        height = 1,
+      },
+      
+      -- Notification settings
+      notifications = {
+        enabled = true,
+      },
+    })
+<
+
+Configuration Options ~
+
+*nvim-newfile-config-languages*
+languages                   Table containing language-specific configurations.
+                           Each language can have the following options:
+                           • enabled: Boolean to enable/disable the language
+                           • package_format: String format for package declaration
+                           • use_directory_name: Boolean indicating if package
+                             should use directory name only
+                           • file_extensions: Array of file extensions
+
+*nvim-newfile-config-project-root-patterns*
+project_root_patterns      Array of file patterns used to detect project root.
+                          The plugin searches upward from the current directory
+                          for these files.
+
+*nvim-newfile-config-ui*
+ui                         Table containing UI customization options:
+                          • border_style: Border style for input dialog
+                          • prompt_text: Text displayed in the input prompt
+                          • width: Width of the input dialog
+                          • height: Height of the input dialog
+
+*nvim-newfile-config-notifications*
+notifications              Table containing notification settings:
+                          • enabled: Boolean to enable/disable notifications
+
+==============================================================================
+8. LANGUAGE SUPPORT                           *nvim-newfile-language-support*
+
+The plugin supports multiple programming languages with intelligent
+package/namespace generation:
+
+Supported Languages ~
+
+Language    Extensions      Package Format              Example
+--------    ----------      --------------              -------
+Go          .go             package <directory>         package calculations
+PHP         .php            namespace <namespace>;      namespace App\Services;
+Java        .java           package <namespace>;        package com.example.utils;
+Kotlin      .kt, .kts       package <namespace>         package com.example.utils
+Scala       .scala          package <namespace>         package com.example.utils
+C#          .cs             namespace <namespace>       namespace MyProject.Services
+Rust        .rs             (no package declaration)   Clean file, no boilerplate
+
+Package/Namespace Generation Rules ~
+
+• Go: Uses the directory name as the package name
+• PHP: Converts directory path to namespace with backslashes, capitalizes
+  each part
+• Java/Kotlin/Scala: Converts directory path to dot-separated package,
+  removes common source prefixes
+• C#: Similar to Java but with proper C# namespace formatting
+• Rust: Creates clean files without package declarations (follows Rust
+  module system conventions)
+
+Adding Custom Language Support ~
+
+You can add support for additional languages by extending the configuration:
+
+>
+    require("nvim-newfile").setup({
+      languages = {
+        python = {
+          enabled = true,
+          package_format = '"""Module: %s"""\n',
+          use_directory_name = false,
+          file_extensions = { "py" },
+        },
+        typescript = {
+          enabled = true,
+          package_format = "// Namespace: %s\n",
+          use_directory_name = false,
+          file_extensions = { "ts" },
+        },
+      }
+    })
+<
+
+==============================================================================
+9. EXAMPLES                                              *nvim-newfile-examples*
+
+Auto Extension Detection ~
+
+In a Go project: >
+    :NewFile handler          → creates handler.go with "package main"
+    :NewFile utils/helper     → creates utils/helper.go with "package utils"
+<
+
+In a PHP project: >
+    :NewFile UserController   → creates UserController.php with namespace
+    :NewFile views/index      → creates views/index.blade.php (no PHP tags)
+<
+
+In a Java project: >
+    :NewFile StringUtils      → creates StringUtils.java with package
+<
+
+Tab Completion Examples ~
+
+Type partial path and press <Tab> to autocomplete directories: >
+    :NewFile src/<Tab>        → shows: components/, utils/, services/
+    :NewFile src/comp<Tab>    → completes to: src/components/
+<
+
+Working Directory vs Current File Examples ~
+
+If you're editing /project/src/components/Button.tsx: >
+    :NewFile utils.ts         → creates /project/utils.ts (working directory)
+    :NewFileHere utils.ts     → creates /project/src/components/utils.ts
+<
+
+Package/Namespace Examples ~
+
+Go project in /project/calculations/: >
+    :NewFile calculator       → creates calculator.go with "package calculations"
+<
+
+PHP project in /project/src/Services/Payment/: >
+    :NewFile Processor        → creates Processor.php with "namespace Services\Payment;"
+<
+
+Java project in /project/src/main/java/com/example/utils/: >
+    :NewFile StringHelper     → creates StringHelper.java with "package com.example.utils;"
+<
+
+==============================================================================
+10. TROUBLESHOOTING                           *nvim-newfile-troubleshooting*
+
+Common Issues ~
+
+Issue: Plugin not working after installation
+Solution: Ensure nui.nvim is properly installed and loaded before nvim-newfile
+
+Issue: Package/namespace detection not working
+Solution: Check that your project has proper root files (go.mod, composer.json,
+etc.) and that the language is enabled in configuration
+
+Issue: Tab completion not working
+Solution: Make sure you're in insert mode in the input dialog when pressing <Tab>
+
+Issue: Files created without proper extensions
+Solution: Verify that your project structure matches the expected patterns for
+language detection, or manually specify the extension in the filename
+
+Issue: Input dialog not appearing
+Solution: Check that nui.nvim is properly configured and there are no conflicts
+with other UI plugins
+
+Debug Information ~
+
+To get debug information about project detection: >
+    :lua print(vim.inspect(require("nvim-newfile.utils").find_project_root(".")))
+<
+
+To check current language configuration: >
+    :lua print(vim.inspect(require("nvim-newfile.config").get_language_config("go")))
+<
+
+Getting Help ~
+
+If you encounter issues not covered here:
+1. Check the GitHub repository for known issues
+2. Enable notifications to see any error messages
+3. Use the debug commands above to inspect the plugin state
+4. Create an issue on GitHub with detailed information
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl: 
