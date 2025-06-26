@@ -206,6 +206,10 @@ function M._detect_project_type(current_dir)
             vim.fn.glob(project_root .. "/**/*.sln", false, true)[1] then
             return "csharp"
         end
+        -- Check for Rust project
+        if vim.fn.filereadable(project_root .. "/Cargo.toml") == 1 then
+            return "rust"
+        end
     end
 
     -- If no project root detected, check current directory for existing files

@@ -64,30 +64,60 @@ lua require("nvim-newfile").setup({})
 
 ### Commands
 
-- `:NewFile [filename]` - Create a new file with optional filename
-- `:NewFileHere` - Create a new file in the current directory
+- `:NewFile [filename]` - Create a new file with optional filename (relative to working directory)
+- `:NewFileHere` - Create a new file in the same directory as the current buffer
+
+### Features
+
+- **Tab Completion**: Press `<Tab>` in the file input popup to autocomplete directory paths
+- **Auto Extension Detection**: File extensions are automatically added based on project type
+- **Smart Package Generation**: Automatically generates appropriate package/namespace declarations
+- **Directory Creation**: Automatically creates directories if they don't exist
+- **Laravel Blade Support**: Creates clean Blade templates without PHP tags or namespaces
 
 ### Examples
 
-#### Go Files
+#### Auto Extension Detection
 ```bash
-# In directory: /project/calculations/
-# Command: :NewFile calculator.go
-# Result: File created with "package calculations"
+# In a Go project
+:NewFile handler          → creates handler.go with "package main"
+:NewFile utils/helper     → creates utils/helper.go with "package utils"
+
+# In a PHP project  
+:NewFile UserController   → creates UserController.php with namespace
+:NewFile views/index      → creates views/index.blade.php (empty, no PHP tags)
+
+# In a Java project
+:NewFile StringUtils      → creates StringUtils.java with package declaration
+
+# In a Rust project
+:NewFile handler          → creates handler.rs (clean, no boilerplate)
 ```
 
-#### PHP Files
+#### Tab Completion
 ```bash
-# In directory: /project/src/Services/Payment/
-# Command: :NewFile PaymentProcessor.php
-# Result: File created with "<?php\n\nnamespace Services\\Payment;"
+# Type partial path and press Tab to autocomplete directories
+:NewFile src/<Tab>        → shows: components/, utils/, services/
+:NewFile src/comp<Tab>    → completes to: src/components/
 ```
 
-#### Java Files
+#### Working Directory vs Current File
 ```bash
-# In directory: /project/src/main/java/com/example/utils/
-# Command: :NewFile StringUtils.java
-# Result: File created with "package com.example.utils;"
+# If you're editing /project/src/components/Button.tsx
+:NewFile utils.ts         → creates /project/utils.ts (working directory)
+:NewFileHere utils.ts     → creates /project/src/components/utils.ts (current file location)
+```
+
+#### Package/Namespace Examples
+```bash
+# Go project in /project/calculations/
+:NewFile calculator       → creates calculator.go with "package calculations"
+
+# PHP project in /project/src/Services/Payment/  
+:NewFile Processor        → creates Processor.php with "namespace Services\\Payment;"
+
+# Java project in /project/src/main/java/com/example/utils/
+:NewFile StringHelper     → creates StringHelper.java with "package com.example.utils;"
 ```
 
 ## Language Support
@@ -102,6 +132,7 @@ lua require("nvim-newfile").setup({})
 | Kotlin   | `.kt`, `.kts` | `package <namespace>`             | `package com.example.utils`    |
 | Scala    | `.scala`      | `package <namespace>`             | `package com.example.utils`    |
 | C#       | `.cs`         | `namespace <namespace>\n{`        | `namespace MyProject.Services` |
+| Rust     | `.rs`         | (no package declaration)          | Clean file, no boilerplate     |
 
 ### Package/Namespace Generation Rules
 
@@ -109,6 +140,7 @@ lua require("nvim-newfile").setup({})
 - **PHP**: Converts directory path to namespace with backslashes, capitalizes each part
 - **Java/Kotlin/Scala**: Converts directory path to dot-separated package, removes common source prefixes
 - **C#**: Similar to Java but with proper C# namespace formatting
+- **Rust**: Creates clean files without package declarations (follows Rust module system conventions)
 
 ## Configuration
 

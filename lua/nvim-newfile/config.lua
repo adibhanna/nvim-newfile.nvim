@@ -41,6 +41,12 @@ M.defaults = {
             use_directory_name = false,
             file_extensions = { "scala" },
         },
+        rust = {
+            enabled = true,
+            package_format = "", -- Rust doesn't typically use package declarations at file top
+            use_directory_name = false,
+            file_extensions = { "rs" },
+        },
     },
 
     -- Project root detection patterns
